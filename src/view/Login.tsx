@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Button, Checkbox, Form, Input } from 'antd';
 import { login } from '@/api/modules/login';
 import bgImg from '@/assets/bg.jpg.webp';
@@ -13,14 +14,16 @@ interface loginForm {
 }
 
 function Login() {
+  const navigate = useNavigate();
   const onFinish = (values: loginForm) => {
     console.log(values);
     const { username, password, remember } = values;
     const decodedPassword = SHA3Encrypt(JSON.stringify({ username, password }));
-    console.log(decodedPassword);
     login({ username, password: decodedPassword }).then((res) => {
       const { success, message, data } = res.data as ResultData;
       console.log(success, message, data);
+
+      navigate('/sandbox');
     });
   };
   return (

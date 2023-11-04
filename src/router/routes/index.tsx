@@ -3,6 +3,7 @@ import NotFound from '@/view/NotFound';
 
 const Login = lazy(() => import('@/view/Login'));
 const DevTool = lazy(() => import('@/view/DevTool/index'));
+const Home = lazy(() => import('@/view/Home'));
 
 const routes = [
   {
@@ -10,7 +11,11 @@ const routes = [
     element: <Login />,
   },
   {
-    path: 'sandbox',
+    path: 'home',
+    element: <Home />,
+  },
+  {
+    path: '/sandbox',
     element: <DevTool />,
   },
   {
