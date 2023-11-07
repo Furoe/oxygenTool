@@ -26,7 +26,7 @@ function Navbar() {
         </div>
         <div>
           <span
-            className={theme === 'light' ? '' : 'hidden'}
+            className={`${theme === 'light' ? '' : 'hidden'}`}
             onClick={() => toggleTheme('dark')}
           >
             <img
@@ -38,7 +38,7 @@ function Navbar() {
             />
           </span>
           <span
-            className={theme === 'dark' ? '' : 'hidden'}
+            className={`${theme === 'dark' ? '' : 'hidden'}`}
             onClick={() => toggleTheme('light')}
           >
             <img
