@@ -1,64 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  SandpackCodeEditor,
-  SandpackLayout,
-  SandpackPreview,
-  SandpackProvider,
-} from '@codesandbox/sandpack-react';
-import Editor from '@monaco-editor/react';
 import FileTab from './components/FileTab';
-import MonacoEditor from './components/MonacoEditor';
-import { Terminal } from './components/Terminal';
+import Editor from './components/MonacoEditor';
+import { bundle } from './bundler';
+import { inputFile } from './bundler/types';
 
 function Sandbox() {
-  // const files = {
-  //   'script.js': {
-  //     name: 'script.js',
-  //     language: 'javascript',
-  //     value: 'someJSCodeExample',
-  //   },
-  //   'style.css': {
-  //     name: 'style.css',
-  //     language: 'css',
-  //     value: 'someCSSCodeExample',
-  //   },
-  //   'index.html': {
-  //     name: 'index.html',
-  //     language: 'html',
-  //     value: 'someHTMLCodeExample',
-  //   },
-  // };
-  const sandboxConfig = {
-    showConsole: true,
-    showConsoleButton: true,
-    autorun: true,
-    autoReload: true,
-    visibleFiles: ['/App.ts'],
-    activeFile: '/App.ts',
-    showLineNumbers: true,
-    showInlineErrors: true,
-  };
-
-  interface fileType {
-    [index: string]: {
-      name: string;
-      language: string;
-      value: string;
-    };
-  }
-
-  const files: fileType = {
-    'script.js': {
-      name: 'script.js',
-      language: 'javascript',
-      value: "console.log('hello world)",
+  const files: inputFile[] = [
+    {
+      name: 'script.ts',
+      language: 'typescript',
+      value: `
+      const str:string = '123';
+      str = 3
+      `,
     },
-    'style.css': {
+    {
       name: 'style.css',
       language: 'css',
       value: '.label{color:green;}',
     },
-    'index.html': {
+    {
+      name: 'style.scss',
+      language: 'scss',
+      value: '.label{color:green;}',
+    },
+    {
       name: 'index.html',
       language: 'html',
       value: `<!DOCTYPE html>
@@ -77,54 +43,32 @@ function Sandbox() {
         </body>
       </html>`,
     },
-  };
+  ];
   const editorRef = useRef(null);
-  const [fileName, setFileName] = useState('index.html');
-  const file = files[fileName];
-  useEffect(() => {
-    editorRef.current?.focus();
-  }, [file.name]);
+  const [fileName, setFileName] = useState('script.ts');
+  const file = files.find((f) => f.name === fileName) as inputFile;
+  console.log(file);
+  // (async (files) => {
+  //   try {
+  //     const generateCode = await bundle(files, 'temp');
+  //     console.log(generateCode);
+  //   } catch (err) {}
+  // })(files);
+  // useEffect(() => {
+  //   editorRef.current?.focus();
+  // }, [file.name]);
   return (
     <>
       <div>
         <div>
-          {/* <SandpackProvider
-            template="vanilla"
-            theme="dark"
-            files={files}
-            options={sandboxConfig}
-          >
-            <SandpackLayout> */}
-          {/* <SandpackCodeEditor /> */}
-
-          {/* <SandpackPreview style={{ height: '70vh' }} />
-            </SandpackLayout>
-          </SandpackProvider> */}
-          <button
-            disabled={fileName === 'script.js'}
-            onClick={() => setFileName('script.js')}
-            className="mr-4"
-          >
-            script.js
-          </button>
-          <button
-            disabled={fileName === 'style.css'}
-            onClick={() => setFileName('style.css')}
-            className="mr-4"
-          >
-            style.css
-          </button>
-          <button
-            disabled={fileName === 'index.html'}
-            onClick={() => setFileName('index.html')}
-          >
-            index.html
-          </button>
-          <FileTab tabNames={Object.keys(files)} activeTab={fileName} />
+          <FileTab
+            tabNames={files.map((f) => f.name)}
+            activeTab={fileName}
+            toggleTab={(fileName: string) => setFileName(fileName)}
+          />
           <Editor
-            className="mt-4"
-            width="100%"
-            height="70vh"
+            // width="100%"
+            // height="70vh"
             path={file.name}
             defaultLanguage={file.language}
             theme="vs-dark"
@@ -132,6 +76,7 @@ function Sandbox() {
             onMount={(editor) => (editorRef.current = editor)}
           />
         </div>
+        <div></div>
         <div>{/* <Terminal /> */}</div>
       </div>
     </>

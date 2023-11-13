@@ -13,3 +13,12 @@
 ##### 2023.05.18
 
 项目主体采用`react18`、`typescript`、`vite`、`tailwindcss`、`axios`
+
+##### monaco editor
+
+支持 prettier 格式化
+支持多文件
+支持多文件编译
+支持编译后代码渲染
+支持文件 tab 滚动调整、拖拽调整
+支持新增文件、移除文件

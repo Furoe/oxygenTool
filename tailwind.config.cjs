@@ -14,7 +14,8 @@ module.exports = {
         'purple-300': 'rgba(230,171,255, 0.3)',
         'blue': '#1A6DFF',
         'blue-100': 'rgba(26,109,255,0.1)',
-        'blue-300': 'rgba(26,109,255,0.3)'
+        'blue-300': 'rgba(26,109,255,0.3)',
+        'vs-dark': '#1e1e1e'
       },
       margin: {
         '36px': '36px'
@@ -24,6 +25,9 @@ module.exports = {
       },
       fontSize: {
         '24px': '24px'
+      },
+      boxShadow: {
+        'bt-2px': 'inset 0 2px 0 0 #0ea5e9'
       }
     }
   },
