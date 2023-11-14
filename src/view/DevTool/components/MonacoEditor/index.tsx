@@ -6,6 +6,7 @@ import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
+import usePrevious from '@/hooks/usePrevious';
 import styles from './Editor.module.scss';
 
 interface EditorProps {
@@ -13,7 +14,7 @@ interface EditorProps {
   defaultLanguage: string;
   theme: string;
   defaultValue: string;
-  onMount: () => void;
+  onChange: (path: string, value: string) => void;
 }
 
 registerDocumentFormattingEditProviders();
@@ -42,19 +43,18 @@ function Editor({
   defaultLanguage,
   theme,
   defaultValue,
-  onMount,
+  onChange,
 }: EditorProps) {
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoEl = useRef(null);
+  const [activeFileName, setActiveFileName] = useState(path);
+  const previousPath = usePrevious(path);
 
   useEffect(() => {
     if (monacoEl) {
       setEditor((editor) => {
         if (editor) return editor;
-        if (viewStates.has(path)) {
-          console.log('here');
-        }
         const model = monaco.editor.createModel(
           defaultValue,
           defaultLanguage,
@@ -69,20 +69,21 @@ function Editor({
         });
         _editor.setModel(model);
         _editor.trigger('a', 'editor.action.formatDocument', undefined);
+        _editor.onDidChangeModelContent(() => {
+          console.log('----', previousPath);
+          onChange(path, _editor.getValue());
+        });
         return _editor;
       });
     }
     return () => {
-      // monaco.editor.getModels().forEach((model) => model.dispose());
-      // viewStates.clear();
       editor?.dispose();
-      console.log(viewStates);
     };
   }, [monacoEl.current]);
 
   useEffect(() => {
     if (editor && path) {
-      console.log(viewStates.has(path));
+      console.log('??/');
       if (viewStates.has(path)) {
         editor?.setModel(viewStates.get(path).model);
       } else {
@@ -99,6 +100,7 @@ function Editor({
         editor.trigger('a', 'editor.action.formatDocument', undefined);
       }
     }
+    console.log('ttttt', previousPath);
   }, [path]);
 
   return (

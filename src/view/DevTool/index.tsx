@@ -11,7 +11,7 @@ function Sandbox() {
       language: 'typescript',
       value: `
       const str:string = '123';
-      str = 3
+      
       `,
     },
     {
@@ -34,26 +34,30 @@ function Sandbox() {
           <link rel="icon" type="image/svg+xml" href="/logo-64.svg" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <title>OxygenTool</title>
+          <link href="./style.scss" ref="">
         </head>
         <body
           class="antialiased text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900"
         >
-          <div id="root"></div>
-          <script type="module" src="/src/main.tsx"></script>
+          <div class="label">hello</div>
         </body>
       </html>`,
     },
   ];
-  const editorRef = useRef(null);
+
   const [fileName, setFileName] = useState('script.ts');
   const file = files.find((f) => f.name === fileName) as inputFile;
-  console.log(file);
-  // (async (files) => {
-  //   try {
-  //     const generateCode = await bundle(files, 'temp');
-  //     console.log(generateCode);
-  //   } catch (err) {}
-  // })(files);
+  const updateFile = (path: string, value: string) => {
+    console.log(files.find((f) => f.name === fileName));
+    console.log(path);
+    console.log(value);
+  };
+  (async (files) => {
+    try {
+      const generateCode = await bundle(files, 'temp');
+      console.log(generateCode);
+    } catch (err) {}
+  })(files);
   // useEffect(() => {
   //   editorRef.current?.focus();
   // }, [file.name]);
@@ -73,7 +77,7 @@ function Sandbox() {
             defaultLanguage={file.language}
             theme="vs-dark"
             defaultValue={file.value}
-            onMount={(editor) => (editorRef.current = editor)}
+            onChange={updateFile}
           />
         </div>
         <div></div>

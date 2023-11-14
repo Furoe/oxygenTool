@@ -10,7 +10,6 @@ export async function registerDocumentFormattingEditProviders() {
       _options: monaco.languages.FormattingOptions,
       _token: monaco.CancellationToken
     ) {
-      console.log(model.getLanguageId());
       const pretty = await format({
         language: model.getLanguageId(),
         value: model.getValue(),
