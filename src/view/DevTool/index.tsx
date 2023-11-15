@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import FileTab from './components/FileTab';
 import Editor from './components/MonacoEditor';
-import { bundle } from './bundler';
+import Preview from './components/Preview';
+import { Terminal } from './components/Terminal';
 import { inputFile } from './bundler/types';
 
 function Sandbox() {
   const files: inputFile[] = [
     {
-      name: 'script.ts',
+      name: 'main.tsx',
       language: 'typescript',
       value: `
+      import './style.css'
       const str:string = '123';
-      
+      console.log(str)
       `,
     },
     {
@@ -24,47 +26,25 @@ function Sandbox() {
       language: 'scss',
       value: '.label{color:green;}',
     },
-    {
-      name: 'index.html',
-      language: 'html',
-      value: `<!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8" />
-          <link rel="icon" type="image/svg+xml" href="/logo-64.svg" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>OxygenTool</title>
-          <link href="./style.scss" ref="">
-        </head>
-        <body
-          class="antialiased text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900"
-        >
-          <div class="label">hello</div>
-        </body>
-      </html>`,
-    },
   ];
 
-  const [fileName, setFileName] = useState('script.ts');
+  const [fileName, setFileName] = useState('main.tsx');
+  const [iframeConsole, setIframeConsole] = useState(null);
   const file = files.find((f) => f.name === fileName) as inputFile;
+
   const updateFile = (path: string, value: string) => {
-    console.log(files.find((f) => f.name === fileName));
-    console.log(path);
-    console.log(value);
+    const file = files.find((f) => f.name === path) as inputFile;
+    file.value = value;
   };
-  (async (files) => {
-    try {
-      const generateCode = await bundle(files, 'temp');
-      console.log(generateCode);
-    } catch (err) {}
-  })(files);
-  // useEffect(() => {
-  //   editorRef.current?.focus();
-  // }, [file.name]);
+
+  const handleBindConsole = (el) => {
+    setIframeConsole(el.contentWindow.console);
+  };
+
   return (
     <>
-      <div>
-        <div>
+      <div className="w-full h-full flex">
+        <div className="w-1/2">
           <FileTab
             tabNames={files.map((f) => f.name)}
             activeTab={fileName}
@@ -80,8 +60,13 @@ function Sandbox() {
             onChange={updateFile}
           />
         </div>
-        <div></div>
-        <div>{/* <Terminal /> */}</div>
+        <div className="w-1/2">
+          <Preview files={files} bindConsole={handleBindConsole} />
+          <Terminal hackConsole={iframeConsole} />
+        </div>
+        {/* <div className="w-full">
+          <Terminal hackConsole={iframeConsole} />
+        </div> */}
       </div>
     </>
   );

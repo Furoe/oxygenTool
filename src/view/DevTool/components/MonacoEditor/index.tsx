@@ -48,7 +48,6 @@ function Editor({
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoEl = useRef(null);
-  const [activeFileName, setActiveFileName] = useState(path);
   const previousPath = usePrevious(path);
 
   useEffect(() => {
@@ -69,43 +68,72 @@ function Editor({
         });
         _editor.setModel(model);
         _editor.trigger('a', 'editor.action.formatDocument', undefined);
-        _editor.onDidChangeModelContent(() => {
-          console.log('----', previousPath);
-          onChange(path, _editor.getValue());
-        });
         return _editor;
       });
     }
-    return () => {
-      editor?.dispose();
-    };
+    if (editor) {
+      const listener = editor.onDidChangeModelContent(() => {
+        onChange(path, editor.getValue());
+      });
+      return () => {
+        listener.dispose();
+        editor.dispose();
+      };
+    }
   }, [monacoEl.current]);
 
   useEffect(() => {
     if (editor && path) {
-      console.log('??/');
       if (viewStates.has(path)) {
-        editor?.setModel(viewStates.get(path).model);
+        const { model, state } = viewStates.get(path);
+        editor?.setModel(model);
+        editor.restoreViewState(state);
       } else {
         const model = monaco.editor.createModel(
           defaultValue,
           defaultLanguage,
           monaco.Uri.parse(path)
         );
+        const state = editor.saveViewState();
         viewStates.set(path, {
           model,
           state: null,
         });
+        if (previousPath) {
+          viewStates.set(previousPath, {
+            model: viewStates.get(previousPath).model,
+            state,
+          });
+        }
+
         editor?.setModel(model);
         editor.trigger('a', 'editor.action.formatDocument', undefined);
       }
+      const listener = editor.onDidChangeModelContent(() => {
+        onChange(path, editor.getValue());
+      });
+      return () => {
+        listener.dispose();
+      };
     }
-    console.log('ttttt', previousPath);
   }, [path]);
+
+  useEffect(() => {
+    if (monacoEl.current && editor) {
+      const observer = new ResizeObserver(() => {
+        window.setTimeout(() => editor.layout(), 0);
+      });
+      observer.observe(monacoEl.current);
+      console.log(observer);
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, [editor]);
 
   return (
     <>
-      <div className={styles.Editor} ref={monacoEl}></div>
+      <div className="w-full h-full" ref={monacoEl}></div>
     </>
   );
 }

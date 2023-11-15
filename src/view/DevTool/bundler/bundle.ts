@@ -16,7 +16,7 @@ function injectCSS(css: string, id: string) {
     let styleEl = document.querySelector("[data-o-style-id=${id}]");
     if(!styleEl){
       styleEl = document.createElement('style');
-      styleEl.setAttribute('data-o-style-id', ${id});
+      styleEl.setAttribute('data-o-style-id', '${id}');
       document.head.appendChild(styleEl);
     }
     styleEl.innerHtml = ${JSON.stringify(css)};
@@ -70,7 +70,7 @@ function compileScopedCSS(css: string, buildId: string) {
 function compileGlobalCSS(css: string, buildId: string) {
   const res = serialize(compile(css), middleware([prefixer, stringify]));
   return {
-    contents: injectCSS(css, buildId),
+    contents: injectCSS(res, buildId),
   };
 }
 
